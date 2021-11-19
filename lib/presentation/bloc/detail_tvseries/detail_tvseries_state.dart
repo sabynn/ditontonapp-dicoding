@@ -12,6 +12,21 @@ class StateTvSeriesDetailLoading extends DetailTvSeriesState {}
 
 class StateTvSeriesDetailLoaded extends DetailTvSeriesState {}
 
+class StateWatchlistTvSeriesFailure extends DetailTvSeriesState {
+  final String message;
+
+  const StateWatchlistTvSeriesFailure(this.message);
+}
+
+class StateWatchlistTvSeriesSuccess extends DetailTvSeriesState {
+  final String message;
+
+  const StateWatchlistTvSeriesSuccess(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
+
 class StateDetailTvSeriesFailure extends DetailTvSeriesState {
   final String message;
 

@@ -1,23 +1,38 @@
-import 'package:ditonton/common/state_enum.dart';
-import 'package:ditonton/presentation/provider/tv_series/popular_tvseries_notifier.dart';
+import 'package:ditonton/presentation/bloc/popular_tvseries/popular_tvseries_bloc.dart';
 import 'package:ditonton/presentation/widgets/tvseries_card_list.dart';
+import 'package:ditonton/injection.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class PopularTvSeriesPage extends StatefulWidget {
+class PopularTvSeriesPage extends StatelessWidget {
   static const ROUTE_NAME = '/popular-tv-series';
+  final PopularTvSeriesBloc popularTvSeriesBloc = locator();
 
   @override
-  _PopularTvSeriesPageState createState() => _PopularTvSeriesPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => popularTvSeriesBloc,
+      child: SafeArea(
+        child: PopularTvSeriesMainPage(),
+      ),
+    );
+  }
 }
 
-class _PopularTvSeriesPageState extends State<PopularTvSeriesPage> {
+
+class PopularTvSeriesMainPage extends StatefulWidget {
+  @override
+  _PopularTvSeriesMainPageState createState() => _PopularTvSeriesMainPageState();
+}
+
+class _PopularTvSeriesMainPageState extends State<PopularTvSeriesMainPage> {
+  late PopularTvSeriesBloc popularTvSeriesBloc;
+
   @override
   void initState() {
+    popularTvSeriesBloc = BlocProvider.of<PopularTvSeriesBloc>(context);
+    popularTvSeriesBloc.add(EventLoadPopularTvSeries());
     super.initState();
-    Future.microtask(() =>
-        Provider.of<PopularTvSeriesNotifier>(context, listen: false)
-            .fetchPopularTvSeries());
   }
 
   @override
@@ -28,24 +43,32 @@ class _PopularTvSeriesPageState extends State<PopularTvSeriesPage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Consumer<PopularTvSeriesNotifier>(
-          builder: (context, data, child) {
-            if (data.state == RequestState.Loading) {
+        child: BlocBuilder(
+          bloc: popularTvSeriesBloc,
+          builder: (context, state) {
+            if (state is PopularTvSeriesInitial) {
               return Center(
                 child: CircularProgressIndicator(),
               );
-            } else if (data.state == RequestState.Loaded) {
+            } else if (state is StatePopularTvSeriesLoaded &&
+                popularTvSeriesBloc.tvSeries.isEmpty) {
+              return Center(
+                key: Key('empty_message'),
+                child: Text("No Popular Tv Series Available"),
+              );
+            } else if (state is StatePopularTvSeriesLoaded &&
+                popularTvSeriesBloc.tvSeries.isNotEmpty) {
               return ListView.builder(
                 itemBuilder: (context, index) {
-                  final tvSeries = data.tvSeries[index];
+                  final tvSeries = popularTvSeriesBloc.tvSeries[index];
                   return TvSeriesCard(tvSeries);
                 },
-                itemCount: data.tvSeries.length,
+                itemCount: popularTvSeriesBloc.tvSeries.length,
               );
             } else {
               return Center(
                 key: Key('error_message'),
-                child: Text(data.message),
+                child: Text(popularTvSeriesBloc.message),
               );
             }
           },

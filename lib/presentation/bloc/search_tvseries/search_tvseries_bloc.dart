@@ -7,10 +7,10 @@ import 'package:equatable/equatable.dart';
 part 'search_tvseries_event.dart';
 part 'search_tvseries_state.dart';
 
-class SearchBloc extends Bloc<SearchEvent, SearchState> {
+class SearchTvSeriesBloc extends Bloc<SearchEvent, SearchState> {
   final SearchTvSeries _searchTvSeries;
 
-  SearchBloc(this._searchTvSeries) : super(SearchEmpty());
+  SearchTvSeriesBloc(this._searchTvSeries) : super(SearchEmpty());
 
   @override
   Stream<SearchState> mapEventToState(

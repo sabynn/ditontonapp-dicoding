@@ -29,11 +29,14 @@ class PopularMovieBloc extends Bloc<PopularMovieEvent, PopularMovieState> {
     emit(PopularMovieInitial());
     final result = await _getPopularMovies.execute();
     result.fold(
-      (failure) => emit(
-        StateLoadPopularMovieFailure(
-          message: failure.message,
-        ),
-      ),
+      (failure) {
+        _message = failure.message;
+        emit(
+          StateLoadPopularMovieFailure(
+            message: failure.message,
+          ),
+        );
+      },
       (data) {
         _movies = data;
         emit(StatePopularMovieLoaded());

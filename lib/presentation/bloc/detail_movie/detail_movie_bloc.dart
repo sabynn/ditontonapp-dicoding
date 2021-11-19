@@ -11,8 +11,8 @@ part 'detail_movie_event.dart';
 part 'detail_movie_state.dart';
 
 class MovieDetailBloc extends Bloc<DetailMovieEvent, DetailMovieState> {
-  static const watchlistAddSuccessMessage = 'Added to Watchlist';
-  static const watchlistRemoveSuccessMessage = 'Removed from Watchlist';
+  String watchlistAddSuccessMessage = 'Added to Watchlist';
+  String watchlistRemoveSuccessMessage = 'Removed from Watchlist';
 
   final GetMovieDetail _getMovieDetail;
   final GetMovieRecommendations _getMovieRecommendations;
@@ -62,13 +62,13 @@ class MovieDetailBloc extends Bloc<DetailMovieEvent, DetailMovieState> {
     _isAddedToWatchlist = statusResult;
     detailResult.fold(
       (failure) {
-        emit(StateDetailMoviesFailure(failure.message));
+        emit(StateLoadDetailMovieFailure(message: failure.message));
       },
       (movie) {
         _movie = movie;
         recommendationResult.fold(
           (failure) {
-            emit(StateDetailMoviesFailure(failure.message));
+            emit(StateLoadMovieRecommendationFailure(message: failure.message));
           },
           (movies) {
             _movieRecommendations = movies;
@@ -85,14 +85,13 @@ class MovieDetailBloc extends Bloc<DetailMovieEvent, DetailMovieState> {
   ) async {
     emit(StateMovieDetailLoading());
     final result = await _saveWatchlist.execute(event.movie);
-
     await result.fold(
       (failure) async {
-        emit(StateDetailMoviesFailure(failure.message));
+        emit(StateWatchlistFailure(failure.message));
       },
       (successMessage) async {
         _isAddedToWatchlist = true;
-        emit(StateDetailMoviesSuccess(successMessage));
+        emit(StateWatchlistSuccess(successMessage));
       },
     );
   }
@@ -106,11 +105,11 @@ class MovieDetailBloc extends Bloc<DetailMovieEvent, DetailMovieState> {
 
     await result.fold(
       (failure) async {
-        emit(StateDetailMoviesFailure(failure.message));
+        emit(StateWatchlistFailure(failure.message));
       },
       (successMessage) async {
         _isAddedToWatchlist = false;
-        emit(StateDetailMoviesSuccess(successMessage));
+        emit(StateWatchlistSuccess(successMessage));
       },
     );
   }

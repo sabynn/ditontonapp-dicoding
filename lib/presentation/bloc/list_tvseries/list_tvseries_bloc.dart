@@ -9,7 +9,7 @@ part 'list_tvseries_event.dart';
 part 'list_tvseries_state.dart';
 
 class TvSeriesListBloc extends Bloc<TvSeriesListEvent, TvSeriesListState> {
-  final GetAiringTodayTvSeries _getNowPlayingTvSeries;
+  final GetAiringTodayTvSeries _getAiringTodayTvSeries;
   final GetPopularTvSeries _getPopularTvSeries;
   final GetTopRatedTvSeries _getTopRatedTvSeries;
 
@@ -26,10 +26,10 @@ class TvSeriesListBloc extends Bloc<TvSeriesListEvent, TvSeriesListState> {
   String get message => _message;
 
   TvSeriesListBloc({
-    required GetAiringTodayTvSeries getNowPlayingTvSeries,
+    required GetAiringTodayTvSeries getAiringTodayTvSeries,
     required GetPopularTvSeries getPopularTvSeries,
     required GetTopRatedTvSeries getTopRatedTvSeries,
-  })  : _getNowPlayingTvSeries = getNowPlayingTvSeries,
+  })  : _getAiringTodayTvSeries = getAiringTodayTvSeries,
         _getPopularTvSeries = getPopularTvSeries,
         _getTopRatedTvSeries = getTopRatedTvSeries,
         super(StateTvSeriesListInitial()) {
@@ -42,7 +42,7 @@ class TvSeriesListBloc extends Bloc<TvSeriesListEvent, TvSeriesListState> {
       Emitter<TvSeriesListState> emit,
       ) async {
     emit(StateTvSeriesListInitial());
-    final nowPlayingResult = await _getNowPlayingTvSeries.execute();
+    final nowPlayingResult = await _getAiringTodayTvSeries.execute();
     final popularResult = await _getPopularTvSeries.execute();
     final topRatedResult = await _getTopRatedTvSeries.execute();
     bool next = true;

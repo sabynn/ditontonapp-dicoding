@@ -13,6 +13,9 @@ class TopRatedTvSeriesBloc
 
   List<TvSeries> get tvSeries => _tvSeries;
 
+  String _message = '';
+  String get message => _message;
+
   TopRatedTvSeriesBloc({
     required GetTopRatedTvSeries getTopRatedTvSeries,
   })  : _getTopRatedTvSeries = getTopRatedTvSeries,
@@ -27,9 +30,14 @@ class TopRatedTvSeriesBloc
     emit(TopRatedTvSeriesInitial());
     final result = await _getTopRatedTvSeries.execute();
     result.fold(
-      (failure) => emit(StateLoadTopRatedTvSeriesFailure(
-        message: failure.message,
-      )),
+      (failure) {
+        _message = failure.message;
+        emit(
+          StateLoadTopRatedTvSeriesFailure(
+            message: failure.message,
+          ),
+        );
+      },
       (data) {
         _tvSeries = data;
         emit(StateTopRatedTvSeriesLoaded());

@@ -1,23 +1,37 @@
-import 'package:ditonton/common/state_enum.dart';
-import 'package:ditonton/presentation/provider/popular_movies_notifier.dart';
+import 'package:ditonton/presentation/bloc/popular_movie/popular_movie_bloc.dart';
 import 'package:ditonton/presentation/widgets/movie_card_list.dart';
+import 'package:ditonton/injection.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class PopularMoviesPage extends StatefulWidget {
+class PopularMoviesPage extends StatelessWidget {
   static const ROUTE_NAME = '/popular-movie';
+  final PopularMovieBloc popularMovieBloc = locator();
 
   @override
-  _PopularMoviesPageState createState() => _PopularMoviesPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => popularMovieBloc,
+      child: SafeArea(
+        child: PopularMovieMainPage(),
+      ),
+    );
+  }
 }
 
-class _PopularMoviesPageState extends State<PopularMoviesPage> {
+class PopularMovieMainPage extends StatefulWidget {
+  @override
+  _PopularMovieMainPageState createState() => _PopularMovieMainPageState();
+}
+
+class _PopularMovieMainPageState extends State<PopularMovieMainPage> {
+  late PopularMovieBloc popularMovieBloc;
+
   @override
   void initState() {
+    popularMovieBloc = BlocProvider.of<PopularMovieBloc>(context);
+    popularMovieBloc.add(EventLoadPopularMovie());
     super.initState();
-    Future.microtask(() =>
-        Provider.of<PopularMoviesNotifier>(context, listen: false)
-            .fetchPopularMovies());
   }
 
   @override
@@ -28,24 +42,32 @@ class _PopularMoviesPageState extends State<PopularMoviesPage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Consumer<PopularMoviesNotifier>(
-          builder: (context, data, child) {
-            if (data.state == RequestState.Loading) {
+        child: BlocBuilder(
+          bloc: popularMovieBloc,
+          builder: (context, state) {
+            if (state is PopularMovieInitial) {
               return Center(
                 child: CircularProgressIndicator(),
               );
-            } else if (data.state == RequestState.Loaded) {
+            } else if (state is StatePopularMovieLoaded &&
+                popularMovieBloc.movies.isEmpty) {
+              return Center(
+                key: Key('empty_message'),
+                child: Text("No Popular Movie Available"),
+              );
+            } else if (state is StatePopularMovieLoaded &&
+                popularMovieBloc.movies.isNotEmpty) {
               return ListView.builder(
                 itemBuilder: (context, index) {
-                  final movie = data.movies[index];
+                  final movie = popularMovieBloc.movies[index];
                   return MovieCard(movie);
                 },
-                itemCount: data.movies.length,
+                itemCount: popularMovieBloc.movies.length,
               );
             } else {
               return Center(
                 key: Key('error_message'),
-                child: Text(data.message),
+                child: Text(popularMovieBloc.message),
               );
             }
           },

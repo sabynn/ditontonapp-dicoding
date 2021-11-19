@@ -89,11 +89,11 @@ class TvSeriesDetailBloc extends Bloc<DetailTvSeriesEvent, DetailTvSeriesState> 
 
     await result.fold(
           (failure) async {
-        emit(StateDetailTvSeriesFailure(failure.message));
+        emit(StateWatchlistTvSeriesFailure(failure.message));
       },
           (successMessage) async {
         _isAddedToWatchlist = true;
-        emit(StateDetailTvSeriesSuccess(successMessage));
+        emit(StateWatchlistTvSeriesSuccess(successMessage));
       },
     );
   }
@@ -107,11 +107,11 @@ class TvSeriesDetailBloc extends Bloc<DetailTvSeriesEvent, DetailTvSeriesState> 
 
     await result.fold(
           (failure) async {
-        emit(StateDetailTvSeriesFailure(failure.message));
+        emit(StateWatchlistTvSeriesFailure(failure.message));
       },
           (successMessage) async {
         _isAddedToWatchlist = false;
-        emit(StateDetailTvSeriesSuccess(successMessage));
+        emit(StateWatchlistTvSeriesSuccess(successMessage));
       },
     );
   }

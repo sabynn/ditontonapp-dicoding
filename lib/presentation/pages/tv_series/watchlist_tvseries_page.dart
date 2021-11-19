@@ -1,25 +1,40 @@
-import 'package:ditonton/common/state_enum.dart';
 import 'package:ditonton/common/utils.dart';
-import 'package:ditonton/presentation/provider/tv_series/watchlist_tvseries_notifier.dart';
+import 'package:ditonton/presentation/bloc/watchlist_tvseries/watchlist_tvseries_bloc.dart';
 import 'package:ditonton/presentation/widgets/tvseries_card_list.dart';
+import 'package:ditonton/injection.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class WatchlistTvSeriesPage extends StatefulWidget {
+
+class WatchlistTvSeriesPage extends StatelessWidget{
   static const ROUTE_NAME = '/watchlist-tv-series';
+  WatchlistTvSeriesBloc watchlistTvSeriesBloc = locator();
 
   @override
-  _WatchlistTvSeriesPageState createState() => _WatchlistTvSeriesPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => watchlistTvSeriesBloc,
+      child: SafeArea(
+        child: WatchlistTvSeriesMainPage(),
+      ),
+    );
+  }
 }
 
-class _WatchlistTvSeriesPageState extends State<WatchlistTvSeriesPage>
+class WatchlistTvSeriesMainPage extends StatefulWidget {
+  @override
+  _WatchlistTvSeriesMainPageState createState() => _WatchlistTvSeriesMainPageState();
+}
+
+class _WatchlistTvSeriesMainPageState extends State<WatchlistTvSeriesMainPage>
     with RouteAware {
+  late WatchlistTvSeriesBloc watchlistTvSeriesBloc ;
+
   @override
   void initState() {
     super.initState();
-    Future.microtask(() =>
-        Provider.of<WatchlistTvSeriesNotifier>(context, listen: false)
-            .fetchWatchlistTvSeries());
+    watchlistTvSeriesBloc = BlocProvider.of<WatchlistTvSeriesBloc>(context);
+    watchlistTvSeriesBloc.add(EventLoadWatchlistTvSeries());
   }
 
   @override
@@ -29,8 +44,7 @@ class _WatchlistTvSeriesPageState extends State<WatchlistTvSeriesPage>
   }
 
   void didPopNext() {
-    Provider.of<WatchlistTvSeriesNotifier>(context, listen: false)
-        .fetchWatchlistTvSeries();
+    watchlistTvSeriesBloc.add(EventLoadWatchlistTvSeries());
   }
 
   @override
@@ -41,24 +55,32 @@ class _WatchlistTvSeriesPageState extends State<WatchlistTvSeriesPage>
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Consumer<WatchlistTvSeriesNotifier>(
-          builder: (context, data, child) {
-            if (data.watchlistState == RequestState.Loading) {
+        child: BlocBuilder(
+          bloc: watchlistTvSeriesBloc,
+          builder: (context, state) {
+            if (state is WatchlistTvSeriesInitial) {
               return Center(
                 child: CircularProgressIndicator(),
               );
-            } else if (data.watchlistState == RequestState.Loaded) {
+            } else if (state is StateWatchlistTvSeriesLoaded &&
+                watchlistTvSeriesBloc.tvSeries.isEmpty) {
+              return Center(
+                key: Key('empty_message'),
+                child: Text("No TvSeries Watchlist Available"),
+              );
+            } else if (state is StateWatchlistTvSeriesLoaded &&
+                watchlistTvSeriesBloc.tvSeries.isNotEmpty) {
               return ListView.builder(
                 itemBuilder: (context, index) {
-                  final movie = data.watchlistTvSeries[index];
-                  return TvSeriesCard(movie);
+                  final tvSeries = watchlistTvSeriesBloc.tvSeries[index];
+                  return TvSeriesCard(tvSeries);
                 },
-                itemCount: data.watchlistTvSeries.length,
+                itemCount: watchlistTvSeriesBloc.tvSeries.length,
               );
             } else {
               return Center(
                 key: Key('error_message'),
-                child: Text(data.message),
+                child: Text(watchlistTvSeriesBloc.message),
               );
             }
           },

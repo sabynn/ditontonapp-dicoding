@@ -7,10 +7,10 @@ import 'package:equatable/equatable.dart';
 part 'search_movie_event.dart';
 part 'search_movie_state.dart';
 
-class SearchBloc extends Bloc<SearchEvent, SearchState> {
+class SearchMovieBloc extends Bloc<SearchEvent, SearchState> {
   final SearchMovies _searchMovies;
 
-  SearchBloc(this._searchMovies) : super(SearchEmpty());
+  SearchMovieBloc(this._searchMovies) : super(SearchEmpty());
 
   @override
   Stream<SearchState> mapEventToState(

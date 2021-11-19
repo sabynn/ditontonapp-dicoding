@@ -1,25 +1,39 @@
-import 'package:ditonton/common/state_enum.dart';
 import 'package:ditonton/common/utils.dart';
-import 'package:ditonton/presentation/provider/watchlist_movie_notifier.dart';
+import 'package:ditonton/presentation/bloc/watchlist_movie/watchlist_movie_bloc.dart';
 import 'package:ditonton/presentation/widgets/movie_card_list.dart';
+import 'package:ditonton/injection.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class WatchlistMoviesPage extends StatefulWidget {
+class WatchlistMoviesPage extends StatelessWidget{
   static const ROUTE_NAME = '/watchlist-movie';
+  WatchlistMovieBloc watchlistMovieBloc = locator();
 
   @override
-  _WatchlistMoviesPageState createState() => _WatchlistMoviesPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => watchlistMovieBloc,
+      child: SafeArea(
+        child: WatchlistMoviesMainPage(),
+      ),
+    );
+  }
 }
 
-class _WatchlistMoviesPageState extends State<WatchlistMoviesPage>
+class WatchlistMoviesMainPage extends StatefulWidget {
+  @override
+  _WatchlistMoviesMainPageState createState() => _WatchlistMoviesMainPageState();
+}
+
+class _WatchlistMoviesMainPageState extends State<WatchlistMoviesMainPage>
     with RouteAware {
+  late WatchlistMovieBloc watchlistMovieBloc;
+
   @override
   void initState() {
+    watchlistMovieBloc = BlocProvider.of<WatchlistMovieBloc>(context);
+    watchlistMovieBloc.add(EventLoadWatchlistMovie());
     super.initState();
-    Future.microtask(() =>
-        Provider.of<WatchlistMovieNotifier>(context, listen: false)
-            .fetchWatchlistMovies());
   }
 
   @override
@@ -29,8 +43,7 @@ class _WatchlistMoviesPageState extends State<WatchlistMoviesPage>
   }
 
   void didPopNext() {
-    Provider.of<WatchlistMovieNotifier>(context, listen: false)
-        .fetchWatchlistMovies();
+    watchlistMovieBloc.add(EventLoadWatchlistMovie());
   }
 
   @override
@@ -41,24 +54,32 @@ class _WatchlistMoviesPageState extends State<WatchlistMoviesPage>
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Consumer<WatchlistMovieNotifier>(
-          builder: (context, data, child) {
-            if (data.watchlistState == RequestState.Loading) {
+        child: BlocBuilder(
+          bloc: watchlistMovieBloc,
+          builder: (context, state) {
+            if (state is WatchlistMovieInitial) {
               return Center(
                 child: CircularProgressIndicator(),
               );
-            } else if (data.watchlistState == RequestState.Loaded) {
+            } else if (state is StateWatchlistMovieLoaded &&
+                watchlistMovieBloc.movies.isEmpty) {
+              return Center(
+                key: Key('empty_message'),
+                child: Text("No Movie Watchlist Available"),
+              );
+            } else if (state is StateWatchlistMovieLoaded &&
+                watchlistMovieBloc.movies.isNotEmpty) {
               return ListView.builder(
                 itemBuilder: (context, index) {
-                  final movie = data.watchlistMovies[index];
+                  final movie = watchlistMovieBloc.movies[index];
                   return MovieCard(movie);
                 },
-                itemCount: data.watchlistMovies.length,
+                itemCount: watchlistMovieBloc.movies.length,
               );
             } else {
               return Center(
                 key: Key('error_message'),
-                child: Text(data.message),
+                child: Text(watchlistMovieBloc.message),
               );
             }
           },

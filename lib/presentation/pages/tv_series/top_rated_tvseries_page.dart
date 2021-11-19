@@ -1,23 +1,37 @@
-import 'package:ditonton/common/state_enum.dart';
-import 'package:ditonton/presentation/provider/tv_series/top_rated_tvseries_notifier.dart';
+import 'package:ditonton/presentation/bloc/top_rated_tvseries/top_rated_tvseries_bloc.dart';
 import 'package:ditonton/presentation/widgets/tvseries_card_list.dart';
+import 'package:ditonton/injection.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class TopRatedTvSeriesPage extends StatefulWidget {
+class TopRatedTvSeriesPage extends StatelessWidget{
   static const ROUTE_NAME = '/top-rated-tv-series';
+  final TopRatedTvSeriesBloc topRatedTvSeriesBloc = locator();
 
   @override
-  _TopRatedTvSeriesPageState createState() => _TopRatedTvSeriesPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => topRatedTvSeriesBloc,
+      child: SafeArea(
+        child: TopRatedTvSeriesMainPage(),
+      ),
+    );
+  }
 }
 
-class _TopRatedTvSeriesPageState extends State<TopRatedTvSeriesPage> {
+class TopRatedTvSeriesMainPage extends StatefulWidget {
+  @override
+  _TopRatedTvSeriesMainPageState createState() => _TopRatedTvSeriesMainPageState();
+}
+
+class _TopRatedTvSeriesMainPageState extends State<TopRatedTvSeriesMainPage> {
+  late TopRatedTvSeriesBloc topRatedTvSeriesBloc;
+
   @override
   void initState() {
     super.initState();
-    Future.microtask(() =>
-        Provider.of<TopRatedTvSeriesNotifier>(context, listen: false)
-            .fetchTopRatedTvSeries());
+    topRatedTvSeriesBloc = BlocProvider.of<TopRatedTvSeriesBloc>(context);
+    topRatedTvSeriesBloc.add(EventLoadTopRatedTvSeries());
   }
 
   @override
@@ -28,24 +42,32 @@ class _TopRatedTvSeriesPageState extends State<TopRatedTvSeriesPage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Consumer<TopRatedTvSeriesNotifier>(
-          builder: (context, data, child) {
-            if (data.state == RequestState.Loading) {
+        child: BlocBuilder(
+          bloc: topRatedTvSeriesBloc,
+          builder: (context, state) {
+            if (state is TopRatedTvSeriesInitial) {
               return Center(
                 child: CircularProgressIndicator(),
               );
-            } else if (data.state == RequestState.Loaded) {
+            } else if (state is StateTopRatedTvSeriesLoaded &&
+                topRatedTvSeriesBloc.tvSeries.isEmpty) {
+              return Center(
+                key: Key('empty_message'),
+                child: Text("No Top Rated TvSeries Available"),
+              );
+            } else if (state is StateTopRatedTvSeriesLoaded &&
+                topRatedTvSeriesBloc.tvSeries.isNotEmpty) {
               return ListView.builder(
                 itemBuilder: (context, index) {
-                  final tvSeries = data.tvSeries[index];
+                  final tvSeries = topRatedTvSeriesBloc.tvSeries[index];
                   return TvSeriesCard(tvSeries);
                 },
-                itemCount: data.tvSeries.length,
+                itemCount: topRatedTvSeriesBloc.tvSeries.length,
               );
             } else {
               return Center(
                 key: Key('error_message'),
-                child: Text(data.message),
+                child: Text(topRatedTvSeriesBloc.message),
               );
             }
           },

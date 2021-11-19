@@ -6,7 +6,8 @@ import 'package:equatable/equatable.dart';
 part 'popular_tvseries_event.dart';
 part 'popular_tvseries_state.dart';
 
-class PopularTvSeriesBloc extends Bloc<PopularTvSeriesEvent, PopularTvSeriesState> {
+class PopularTvSeriesBloc
+    extends Bloc<PopularTvSeriesEvent, PopularTvSeriesState> {
   final GetPopularTvSeries _getPopularTvSeries;
 
   List<TvSeries> _tvSeries = [];
@@ -23,18 +24,21 @@ class PopularTvSeriesBloc extends Bloc<PopularTvSeriesEvent, PopularTvSeriesStat
   }
 
   void _loadPopularTvSeries(
-      EventLoadPopularTvSeries event,
-      Emitter<PopularTvSeriesState> emit,
-      ) async {
+    EventLoadPopularTvSeries event,
+    Emitter<PopularTvSeriesState> emit,
+  ) async {
     emit(PopularTvSeriesInitial());
     final result = await _getPopularTvSeries.execute();
     result.fold(
-          (failure) => emit(
-        StateLoadPopularTvSeriesFailure(
-          message: failure.message,
-        ),
-      ),
-          (data) {
+      (failure) {
+        _message = failure.message;
+        emit(
+          StateLoadPopularTvSeriesFailure(
+            message: failure.message,
+          ),
+        );
+      },
+      (data) {
         _tvSeries = data;
         emit(StatePopularTvSeriesLoaded());
       },

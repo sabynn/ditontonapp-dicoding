@@ -11,7 +11,10 @@ class WatchlistMovieBloc
   final GetWatchlistMovies _getWatchlistMovies;
   List<Movie> _watchlistMovies = [];
 
-  List<Movie> get watchlistMovies => _watchlistMovies;
+  List<Movie> get movies => _watchlistMovies;
+
+  String _message = '';
+  String get message => _message;
 
   WatchlistMovieBloc({
     required GetWatchlistMovies getWatchlistMovies,
@@ -27,9 +30,14 @@ class WatchlistMovieBloc
     emit(WatchlistMovieInitial());
     final result = await _getWatchlistMovies.execute();
     result.fold(
-      (failure) => emit(StateLoadWatchlistMovieFailure(
-        message: failure.message,
-      )),
+      (failure) {
+        _message = message;
+        emit(
+          StateLoadWatchlistMovieFailure(
+            message: failure.message,
+          ),
+        );
+      },
       (data) {
         _watchlistMovies = data;
         emit(StateWatchlistMovieLoaded());

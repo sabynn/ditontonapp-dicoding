@@ -12,22 +12,35 @@ class StateMovieDetailLoading extends DetailMovieState {}
 
 class StateMovieDetailLoaded extends DetailMovieState {}
 
-class StateDetailMoviesFailure extends DetailMovieState {
+class StateWatchlistFailure extends DetailMovieState {
   final String message;
 
-  const StateDetailMoviesFailure(this.message);
+  const StateWatchlistFailure(this.message);
+}
+
+class StateWatchlistSuccess extends DetailMovieState {
+  final String message;
+
+  const StateWatchlistSuccess(this.message);
 
   @override
   List<Object> get props => [message];
 }
 
-class StateDetailMoviesSuccess extends DetailMovieState {
+class StateLoadDetailMovieFailure extends DetailMovieState {
   final String message;
 
-  const StateDetailMoviesSuccess(this.message);
+  StateLoadDetailMovieFailure({
+    this.message = "",
+  });
+}
 
-  @override
-  List<Object> get props => [message];
+class StateLoadMovieRecommendationFailure extends DetailMovieState {
+  final String message;
+
+  StateLoadMovieRecommendationFailure({
+    this.message = "",
+  });
 }
 
 class StateCheckWatchlistStatus extends DetailMovieState {

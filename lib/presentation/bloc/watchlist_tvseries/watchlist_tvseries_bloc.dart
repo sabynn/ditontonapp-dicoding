@@ -11,7 +11,10 @@ class WatchlistTvSeriesBloc
   final GetWatchlistTvSeries _getWatchlistTvSeries;
   List<TvSeries> _watchlistTvSeries = [];
 
-  List<TvSeries> get watchlistTvSeries => _watchlistTvSeries;
+  List<TvSeries> get tvSeries => _watchlistTvSeries;
+
+  String _message = '';
+  String get message => _message;
 
   WatchlistTvSeriesBloc({
     required GetWatchlistTvSeries getWatchlistTvSeries,
@@ -21,16 +24,21 @@ class WatchlistTvSeriesBloc
   }
 
   void _loadWatchlistTvSeries(
-      EventLoadWatchlistTvSeries event,
-      Emitter<WatchlistTvSeriesState> emit,
-      ) async {
+    EventLoadWatchlistTvSeries event,
+    Emitter<WatchlistTvSeriesState> emit,
+  ) async {
     emit(WatchlistTvSeriesInitial());
     final result = await _getWatchlistTvSeries.execute();
     result.fold(
-          (failure) => emit(StateLoadWatchlistTvSeriesFailure(
-        message: failure.message,
-      )),
-          (data) {
+      (failure) {
+        _message = failure.message;
+        emit(
+          StateLoadWatchlistTvSeriesFailure(
+            message: failure.message,
+          ),
+        );
+      },
+      (data) {
         _watchlistTvSeries = data;
         emit(StateWatchlistTvSeriesLoaded());
       },

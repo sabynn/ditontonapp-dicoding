@@ -2,6 +2,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ditonton/common/constants.dart';
 import 'package:ditonton/domain/entities/movie.dart';
 import 'package:ditonton/domain/entities/tv_series/tv_series.dart';
+import 'package:ditonton/presentation/bloc/list_movie/list_movie_bloc.dart';
+import 'package:ditonton/presentation/bloc/list_tvseries/list_tvseries_bloc.dart';
 import 'package:ditonton/presentation/pages/about_page.dart';
 import 'package:ditonton/presentation/pages/movie_detail_page.dart';
 import 'package:ditonton/presentation/pages/popular_movies_page.dart';
@@ -13,13 +15,11 @@ import 'package:ditonton/presentation/pages/tv_series/top_rated_tvseries_page.da
 import 'package:ditonton/presentation/pages/tv_series/tvseries_detail_page.dart';
 import 'package:ditonton/presentation/pages/tv_series/watchlist_tvseries_page.dart';
 import 'package:ditonton/presentation/pages/watchlist_movies_page.dart';
-import 'package:ditonton/presentation/provider/movie_list_notifier.dart';
-import 'package:ditonton/presentation/provider/tv_series/tvseries_list_notifier.dart';
+import 'package:ditonton/injection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:provider/provider.dart';
-import 'package:ditonton/common/state_enum.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HomeMoviePage extends StatefulWidget {
   @override
@@ -29,21 +29,13 @@ class HomeMoviePage extends StatefulWidget {
 class _HomeMoviePageState extends State<HomeMoviePage>
     with SingleTickerProviderStateMixin {
   late final TabController _controller;
+  final MovieListBloc movieBloc = locator();
+  final TvSeriesListBloc tvSeriesBloc = locator();
 
   @override
   void initState() {
     super.initState();
     _controller = TabController(length: 2, vsync: this);
-    Future.microtask(() {
-      Provider.of<MovieListNotifier>(context, listen: false)
-        ..fetchNowPlayingMovies()
-        ..fetchPopularMovies()
-        ..fetchTopRatedMovies();
-      Provider.of<TvSeriesListNotifier>(context, listen: false)
-        ..fetchNowPlayingTvSeries()
-        ..fetchPopularTvSeries()
-        ..fetchTopRatedTvSeries();
-    });
   }
 
   @override
@@ -113,8 +105,12 @@ class _HomeMoviePageState extends State<HomeMoviePage>
                 controller: _controller,
                 indicatorColor: kMikadoYellow,
                 tabs: [
-                  Tab(child: Text('TV Series')),
-                  Tab(child: Text('Movie')),
+                  Tab(
+                    child: Text('TV Series'),
+                  ),
+                  Tab(
+                    child: Text('Movie'),
+                  ),
                 ],
               ),
             ),
@@ -124,8 +120,14 @@ class _HomeMoviePageState extends State<HomeMoviePage>
                 child: TabBarView(
                   controller: _controller,
                   children: [
-                    TvSeriesMenu(),
-                    MovieMenu(),
+                    BlocProvider(
+                      create: (context) => tvSeriesBloc,
+                      child: TvSeriesMenu(),
+                    ),
+                    BlocProvider(
+                      create: (context) => movieBloc,
+                      child: MovieMenu(),
+                    ),
                   ],
                 ),
               ),
@@ -137,8 +139,22 @@ class _HomeMoviePageState extends State<HomeMoviePage>
   }
 }
 
-class MovieMenu extends StatelessWidget {
+class MovieMenu extends StatefulWidget {
   const MovieMenu({Key? key}) : super(key: key);
+
+  @override
+  State<MovieMenu> createState() => _MovieMenuState();
+}
+
+class _MovieMenuState extends State<MovieMenu> {
+  late MovieListBloc movieListBloc;
+
+  @override
+  void initState() {
+    super.initState();
+    movieListBloc = BlocProvider.of<MovieListBloc>(context);
+    movieListBloc.add(EventLoadMovieList());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -150,52 +166,56 @@ class MovieMenu extends StatelessWidget {
             'Now Playing',
             style: kHeading6,
           ),
-          Consumer<MovieListNotifier>(builder: (context, data, child) {
-            final state = data.nowPlayingState;
-            if (state == RequestState.Loading) {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            } else if (state == RequestState.Loaded) {
-              return MovieList(data.nowPlayingMovies);
-            } else {
-              return Text('Failed');
-            }
-          }),
+          BlocBuilder(
+            bloc: movieListBloc,
+            builder: (context, state) {
+              if (state is StateMovieListInitial) {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              } else if (state is StateMovieListLoaded) {
+                return MovieList(movieListBloc.nowPlayingMovies);
+              } else {
+                return Text('Failed');
+              }
+            },
+          ),
           _buildSubHeading(
             title: 'Popular',
             onTap: () =>
                 Navigator.pushNamed(context, PopularMoviesPage.ROUTE_NAME),
           ),
-          Consumer<MovieListNotifier>(builder: (context, data, child) {
-            final state = data.popularMoviesState;
-            if (state == RequestState.Loading) {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            } else if (state == RequestState.Loaded) {
-              return MovieList(data.popularMovies);
-            } else {
-              return Text('Failed');
-            }
-          }),
+          BlocBuilder(
+              bloc: movieListBloc,
+              builder: (context, state) {
+                if (state is StateMovieListInitial) {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                } else if (state is StateMovieListLoaded) {
+                  return MovieList(movieListBloc.popularMovies);
+                } else {
+                  return Text('Failed');
+                }
+              }),
           _buildSubHeading(
             title: 'Top Rated',
             onTap: () =>
                 Navigator.pushNamed(context, TopRatedMoviesPage.ROUTE_NAME),
           ),
-          Consumer<MovieListNotifier>(builder: (context, data, child) {
-            final state = data.topRatedMoviesState;
-            if (state == RequestState.Loading) {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            } else if (state == RequestState.Loaded) {
-              return MovieList(data.topRatedMovies);
-            } else {
-              return Text('Failed');
-            }
-          }),
+          BlocBuilder(
+              bloc: movieListBloc,
+              builder: (context, state) {
+                if (state is StateMovieListInitial) {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                } else if (state is StateMovieListLoaded) {
+                  return MovieList(movieListBloc.topRatedMovies);
+                } else {
+                  return Text('Failed');
+                }
+              }),
         ],
       ),
     );
@@ -223,7 +243,21 @@ class MovieMenu extends StatelessWidget {
   }
 }
 
-class TvSeriesMenu extends StatelessWidget {
+class TvSeriesMenu extends StatefulWidget {
+  @override
+  State<TvSeriesMenu> createState() => _TvSeriesMenuState();
+}
+
+class _TvSeriesMenuState extends State<TvSeriesMenu> {
+  late TvSeriesListBloc tvSeriesListBloc;
+
+  @override
+  void initState() {
+    tvSeriesListBloc = BlocProvider.of<TvSeriesListBloc>(context);
+    tvSeriesListBloc.add(EventLoadTvSeriesList());
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -234,52 +268,58 @@ class TvSeriesMenu extends StatelessWidget {
             'Airing Today',
             style: kHeading6,
           ),
-          Consumer<TvSeriesListNotifier>(builder: (context, data, child) {
-            final state = data.nowPlayingState;
-            if (state == RequestState.Loading) {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            } else if (state == RequestState.Loaded) {
-              return TvSeriesList(data.nowPlayingTvSeries);
-            } else {
-              return Text('Failed');
-            }
-          }),
+          BlocBuilder(
+            bloc: tvSeriesListBloc,
+            builder: (context, state) {
+              if (state is StateTvSeriesListInitial) {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              } else if (state is StateTvSeriesListLoaded) {
+                return TvSeriesList(tvSeriesListBloc.nowPlayingTvSeries);
+              } else {
+                return Text('Failed');
+              }
+            },
+          ),
           _buildSubHeading(
             title: 'Popular',
             onTap: () =>
                 Navigator.pushNamed(context, PopularTvSeriesPage.ROUTE_NAME),
           ),
-          Consumer<TvSeriesListNotifier>(builder: (context, data, child) {
-            final state = data.popularTvSeriesState;
-            if (state == RequestState.Loading) {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            } else if (state == RequestState.Loaded) {
-              return TvSeriesList(data.popularTvSeries);
-            } else {
-              return Text('Failed');
-            }
-          }),
+          BlocBuilder(
+            bloc: tvSeriesListBloc,
+            builder: (context, state) {
+              if (state is StateTvSeriesListInitial) {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              } else if (state is StateTvSeriesListLoaded) {
+                return TvSeriesList(tvSeriesListBloc.popularTvSeries);
+              } else {
+                return Text('Failed');
+              }
+            },
+          ),
           _buildSubHeading(
             title: 'Top Rated',
             onTap: () =>
                 Navigator.pushNamed(context, TopRatedTvSeriesPage.ROUTE_NAME),
           ),
-          Consumer<TvSeriesListNotifier>(builder: (context, data, child) {
-            final state = data.topRatedTvSeriesState;
-            if (state == RequestState.Loading) {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            } else if (state == RequestState.Loaded) {
-              return TvSeriesList(data.topRatedTvSeries);
-            } else {
-              return Text('Failed');
-            }
-          }),
+          BlocBuilder(
+            bloc: tvSeriesListBloc,
+            builder: (context, state) {
+              if (state is StateTvSeriesListInitial) {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              } else if (state is StateTvSeriesListLoaded) {
+                return TvSeriesList(tvSeriesListBloc.topRatedTvSeries);
+              } else {
+                return Text('Failed');
+              }
+            },
+          ),
         ],
       ),
     );
