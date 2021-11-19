@@ -14,7 +14,6 @@ import 'package:ditonton/presentation/pages/tv_series/top_rated_tvseries_page.da
 import 'package:ditonton/presentation/pages/tv_series/tvseries_detail_page.dart';
 import 'package:ditonton/presentation/pages/tv_series/watchlist_tvseries_page.dart';
 import 'package:ditonton/presentation/pages/watchlist_movies_page.dart';
-import 'package:ditonton/common/utils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
