@@ -20,6 +20,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 class HomeMoviePage extends StatefulWidget {
   @override
@@ -87,6 +88,7 @@ class _HomeMoviePageState extends State<HomeMoviePage>
         actions: [
           IconButton(
             onPressed: () {
+              FirebaseCrashlytics.instance.crash();
               _controller.index == 1
                   ? Navigator.pushNamed(context, SearchPage.ROUTE_NAME)
                   : Navigator.pushNamed(context, SearchTvSeriesPage.ROUTE_NAME);
