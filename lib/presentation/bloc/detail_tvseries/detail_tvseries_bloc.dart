@@ -48,7 +48,6 @@ class TvSeriesDetailBloc extends Bloc<DetailTvSeriesEvent, DetailTvSeriesState> 
     on<EventLoadDetailTvSeries>(_fetchTvSeriesDetail);
     on<EventAddWatchlist>(_addWatchlist);
     on<EventRemoveWatchlist>(_removeFromWatchlist);
-    on<EventLoadWatchlistStatus>(_loadWatchlistStatus);
   }
 
   void _fetchTvSeriesDetail(
@@ -114,13 +113,5 @@ class TvSeriesDetailBloc extends Bloc<DetailTvSeriesEvent, DetailTvSeriesState> 
         emit(StateWatchlistTvSeriesSuccess(successMessage));
       },
     );
-  }
-
-  void _loadWatchlistStatus(
-      EventLoadWatchlistStatus event,
-      Emitter<DetailTvSeriesState> emit,
-      ) async {
-    final statusResult = await _getWatchListStatus.execute(event.id);
-    emit(StateCheckWatchlistStatus(statusResult));
   }
 }

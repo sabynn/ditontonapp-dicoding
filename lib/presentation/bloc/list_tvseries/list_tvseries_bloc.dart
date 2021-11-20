@@ -48,6 +48,7 @@ class TvSeriesListBloc extends Bloc<TvSeriesListEvent, TvSeriesListState> {
     bool next = true;
     String errorMessage = "";
     nowPlayingResult.fold((failure) {
+      next = next && false;
       errorMessage = failure.message;
     }, (tvSeries) {
       next = next && true;
@@ -56,6 +57,7 @@ class TvSeriesListBloc extends Bloc<TvSeriesListEvent, TvSeriesListState> {
 
     if (next) {
       popularResult.fold((failure) {
+        next = next && false;
         errorMessage = failure.message;
       }, (tvSeries) {
         next = next && true;
@@ -65,6 +67,7 @@ class TvSeriesListBloc extends Bloc<TvSeriesListEvent, TvSeriesListState> {
 
     if (next) {
       topRatedResult.fold((failure) {
+        next = next && false;
         errorMessage = failure.message;
       }, (tvSeries) {
         next = next && true;

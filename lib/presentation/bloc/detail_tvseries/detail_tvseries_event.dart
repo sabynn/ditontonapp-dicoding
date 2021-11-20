@@ -1,17 +1,15 @@
 part of 'detail_tvseries_bloc.dart';
 
-
 abstract class DetailTvSeriesEvent extends Equatable {
   const DetailTvSeriesEvent();
-
-  @override
-  List<Object?> get props => [];
 }
 
 class EventLoadDetailTvSeries extends DetailTvSeriesEvent {
   final int id;
 
   EventLoadDetailTvSeries({required this.id});
+
+  List<Object?> get props => [id];
 }
 
 class EventAddWatchlist extends DetailTvSeriesEvent {
@@ -20,6 +18,8 @@ class EventAddWatchlist extends DetailTvSeriesEvent {
   EventAddWatchlist({
     required this.tvSeries,
   });
+
+  List<Object?> get props => [tvSeries];
 }
 
 class EventRemoveWatchlist extends DetailTvSeriesEvent {
@@ -28,12 +28,6 @@ class EventRemoveWatchlist extends DetailTvSeriesEvent {
   EventRemoveWatchlist({
     required this.tvSeries,
   });
-}
 
-class EventLoadWatchlistStatus extends DetailTvSeriesEvent {
-  final int id;
-
-  EventLoadWatchlistStatus({
-    required this.id,
-  });
+  List<Object?> get props => [tvSeries];
 }

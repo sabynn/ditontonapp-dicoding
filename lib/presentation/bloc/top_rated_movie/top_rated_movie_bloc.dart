@@ -12,8 +12,8 @@ class TopRatedMovieBloc extends Bloc<TopRatedMovieEvent, TopRatedMovieState> {
 
   List<Movie> get movies => _movies;
 
-  String _message = '';
-  String get message => _message;
+  String? _message = '';
+  String? get message => _message;
 
   TopRatedMovieBloc({
     required GetTopRatedMovies getTopRatedMovies,

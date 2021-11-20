@@ -47,6 +47,7 @@ class MovieListBloc extends Bloc<MovieListEvent, MovieListState> {
     bool next = true;
     String errorMessage = "";
     nowPlayingResult.fold((failure) {
+      next = next && false;
       errorMessage = failure.message;
     }, (movie) {
       next = next && true;
@@ -55,6 +56,7 @@ class MovieListBloc extends Bloc<MovieListEvent, MovieListState> {
 
     if (next) {
       popularResult.fold((failure) {
+        next = next && false;
         errorMessage = failure.message;
       }, (movie) {
         next = next && true;
@@ -64,6 +66,7 @@ class MovieListBloc extends Bloc<MovieListEvent, MovieListState> {
 
     if (next) {
       topRatedResult.fold((failure) {
+        next = next && false;
         errorMessage = failure.message;
       }, (movie) {
         next = next && true;

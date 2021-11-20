@@ -42,12 +42,3 @@ class StateLoadMovieRecommendationFailure extends DetailMovieState {
     this.message = "",
   });
 }
-
-class StateCheckWatchlistStatus extends DetailMovieState {
-  final bool isAdded;
-
-  StateCheckWatchlistStatus(this.isAdded);
-
-  @override
-  List<Object> get props => [isAdded];
-}

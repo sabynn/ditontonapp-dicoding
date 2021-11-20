@@ -12,8 +12,8 @@ class PopularMovieBloc extends Bloc<PopularMovieEvent, PopularMovieState> {
   List<Movie> _movies = [];
   List<Movie> get movies => _movies;
 
-  String _message = '';
-  String get message => _message;
+  String? _message = '';
+  String? get message => _message;
 
   PopularMovieBloc({
     required GetPopularMovies getPopularMovies,

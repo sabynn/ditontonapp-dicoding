@@ -2,15 +2,15 @@ part of 'detail_movie_bloc.dart';
 
 abstract class DetailMovieEvent extends Equatable {
   const DetailMovieEvent();
-
-  @override
-  List<Object?> get props => [];
 }
 
 class EventLoadDetailMovie extends DetailMovieEvent {
   final int id;
 
   EventLoadDetailMovie({required this.id});
+
+  @override
+  List<Object?> get props => [id];
 }
 
 class EventAddWatchlist extends DetailMovieEvent {
@@ -19,6 +19,9 @@ class EventAddWatchlist extends DetailMovieEvent {
   EventAddWatchlist({
     required this.movie,
   });
+
+  @override
+  List<Object?> get props => [movie];
 }
 
 class EventRemoveWatchlist extends DetailMovieEvent {
@@ -27,12 +30,8 @@ class EventRemoveWatchlist extends DetailMovieEvent {
   EventRemoveWatchlist({
     required this.movie,
   });
+
+  @override
+  List<Object?> get props => [movie];
 }
 
-class EventLoadWatchlistStatus extends DetailMovieEvent {
-  final int id;
-
-  EventLoadWatchlistStatus({
-    required this.id,
-  });
-}

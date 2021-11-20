@@ -44,12 +44,3 @@ class StateDetailTvSeriesSuccess extends DetailTvSeriesState {
   @override
   List<Object> get props => [message];
 }
-
-class StateCheckWatchlistStatus extends DetailTvSeriesState {
-  final bool isAdded;
-
-  StateCheckWatchlistStatus(this.isAdded);
-
-  @override
-  List<Object> get props => [isAdded];
-}

@@ -68,7 +68,7 @@ class _PopularTvSeriesMainPageState extends State<PopularTvSeriesMainPage> {
             } else {
               return Center(
                 key: Key('error_message'),
-                child: Text(popularTvSeriesBloc.message),
+                child: Text(popularTvSeriesBloc.message ?? "Failure"),
               );
             }
           },

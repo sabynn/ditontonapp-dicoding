@@ -67,7 +67,7 @@ class _PopularMovieMainPageState extends State<PopularMovieMainPage> {
             } else {
               return Center(
                 key: Key('error_message'),
-                child: Text(popularMovieBloc.message),
+                child: Text(popularMovieBloc.message ?? "Failure"),
               );
             }
           },

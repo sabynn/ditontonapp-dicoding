@@ -67,7 +67,7 @@ class _TopRatedTvSeriesMainPageState extends State<TopRatedTvSeriesMainPage> {
             } else {
               return Center(
                 key: Key('error_message'),
-                child: Text(topRatedTvSeriesBloc.message),
+                child: Text(topRatedTvSeriesBloc.message ?? "Failure"),
               );
             }
           },

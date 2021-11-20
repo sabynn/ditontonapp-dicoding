@@ -67,7 +67,7 @@ class _TopRatedMoviesMainPageState extends State<TopRatedMoviesMainPage> {
             } else {
               return Center(
                 key: Key('error_message'),
-                child: Text(topRatedMovieBloc.message),
+                child: Text(topRatedMovieBloc.message ?? "Failure"),
               );
             }
           },

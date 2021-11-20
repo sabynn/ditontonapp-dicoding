@@ -13,8 +13,8 @@ class PopularTvSeriesBloc
   List<TvSeries> _tvSeries = [];
   List<TvSeries> get tvSeries => _tvSeries;
 
-  String _message = '';
-  String get message => _message;
+  String? _message = '';
+  String? get message => _message;
 
   PopularTvSeriesBloc({
     required GetPopularTvSeries getPopularTvSeries,

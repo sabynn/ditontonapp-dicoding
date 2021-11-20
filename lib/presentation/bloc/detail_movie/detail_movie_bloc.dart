@@ -47,7 +47,6 @@ class MovieDetailBloc extends Bloc<DetailMovieEvent, DetailMovieState> {
     on<EventLoadDetailMovie>(_fetchMovieDetail);
     on<EventAddWatchlist>(_addWatchlist);
     on<EventRemoveWatchlist>(_removeFromWatchlist);
-    on<EventLoadWatchlistStatus>(_loadWatchlistStatus);
   }
 
   void _fetchMovieDetail(
@@ -112,13 +111,5 @@ class MovieDetailBloc extends Bloc<DetailMovieEvent, DetailMovieState> {
         emit(StateWatchlistSuccess(successMessage));
       },
     );
-  }
-
-  void _loadWatchlistStatus(
-    EventLoadWatchlistStatus event,
-    Emitter<DetailMovieState> emit,
-  ) async {
-    final statusResult = await _getWatchListStatus.execute(event.id);
-    emit(StateCheckWatchlistStatus(statusResult));
   }
 }

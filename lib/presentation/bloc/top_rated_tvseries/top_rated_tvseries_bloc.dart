@@ -13,8 +13,8 @@ class TopRatedTvSeriesBloc
 
   List<TvSeries> get tvSeries => _tvSeries;
 
-  String _message = '';
-  String get message => _message;
+  String? _message = '';
+  String? get message => _message;
 
   TopRatedTvSeriesBloc({
     required GetTopRatedTvSeries getTopRatedTvSeries,
